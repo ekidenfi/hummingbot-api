@@ -3,8 +3,8 @@ FROM continuumio/miniconda3 AS builder
 
 # Install build dependencies
 RUN apt-get update && \
-    apt-get install -y python3-dev gcc && \
-    rm -rf /var/lib/apt/lists/*
+  apt-get install -y python3-dev gcc g++ build-essential && \
+  rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /build
@@ -14,17 +14,17 @@ COPY environment.yml .
 
 # Create the conda environment
 RUN conda env create -f environment.yml && \
-    conda clean -afy && \
-    rm -rf /root/.cache/pip/*
+  conda clean -afy && \
+  rm -rf /root/.cache/pip/*
 
 # Stage 2: Runtime stage
 FROM continuumio/miniconda3
 
 # Install only runtime dependencies
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    libusb-1.0-0 \
-    && rm -rf /var/lib/apt/lists/*
+  apt-get install -y --no-install-recommends \
+  libusb-1.0-0 \
+  && rm -rf /var/lib/apt/lists/*
 
 # Copy the conda environment from builder
 COPY --from=builder /opt/conda/envs/hummingbot-api /opt/conda/envs/hummingbot-api

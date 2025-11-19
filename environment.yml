@@ -7,7 +7,7 @@ dependencies:
   - fastapi
   - uvicorn
   - boto3
-  - libcxx                
+  - libcxx
   - libta-lib>=0.6.4
   - python-dotenv
   - pandas>=2.3.2
@@ -19,7 +19,7 @@ dependencies:
   - docker-py
   - pip
   - pip:
-      - hummingbot
+      - git+https://github.com/ekidenfi/hummingbot.git@feat/ekiden_connector
       - msgpack>=1.0.5
       - flake8
       - isort
@@ -33,3 +33,4 @@ dependencies:
       - psycopg2-binary
       - greenlet
       - pydantic-settings
+      - aptos_sdk
