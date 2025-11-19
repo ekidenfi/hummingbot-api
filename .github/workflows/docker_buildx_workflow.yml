@@ -2,7 +2,6 @@ name: Hummingbot-API Docker Buildx Workflow
 
 on:
   pull_request:
-    types: [closed]
     branches:
       - main
   push:
@@ -32,6 +31,15 @@ jobs:
           VERSION=$(grep -E '^VERSION *= *' main.py | head -1 | sed -E 's/^VERSION *= *["\x27]?([^"\x27]*)["\x27]?/\1/')
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
+      - name: Prepare tag list
+        id: tags
+        run: |
+          TAGS="ghcr.io/${{ github.repository }}:latest"
+          if [[ -n "${{ steps.meta.outputs.VERSION }}" ]]; then
+            TAGS="$TAGS,ghcr.io/${{ github.repository }}:${{ steps.meta.outputs.VERSION }}"
+          fi
+          echo "tags=$TAGS" >> "$GITHUB_OUTPUT"
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -51,8 +59,6 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: |
-            ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ steps.meta.outputs.VERSION }}
+          tags: ${{ steps.tags.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
