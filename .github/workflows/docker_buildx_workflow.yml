@@ -16,14 +16,14 @@ permissions:
 
 jobs:
   build_and_push:
-    if: >
-      (github.event_name == 'pull_request' && github.event.pull_request.merged == true) ||
-      startsWith(github.ref, 'refs/tags/v') ||
-      github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.1.1
+
+      - name: Get short SHA
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
       - name: Extract version from main.py
         id: get_version
@@ -34,9 +34,9 @@ jobs:
       - name: Prepare tag list
         id: tags
         run: |
-          TAGS="ghcr.io/${{ github.repository }}:latest"
-          if [[ -n "${{ steps.meta.outputs.VERSION }}" ]]; then
-            TAGS="$TAGS,ghcr.io/${{ github.repository }}:${{ steps.meta.outputs.VERSION }}"
+          TAGS="ghcr.io/${{ github.repository }}:${{ steps.vars.outputs.sha_short }},ghcr.io/${{ github.repository }}:latest"
+          if [[ -n "${{ steps.get_version.outputs.VERSION }}" ]]; then
+            TAGS="$TAGS,ghcr.io/${{ github.repository }}:${{ steps.get_version.outputs.VERSION }}"
           fi
           echo "tags=$TAGS" >> "$GITHUB_OUTPUT"
 
@@ -58,7 +58,7 @@ jobs:
         with:
           context: .
           platforms: linux/amd64,linux/arm64
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.tags.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
