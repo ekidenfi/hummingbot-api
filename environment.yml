@@ -19,7 +19,7 @@ dependencies:
   - docker-py
   - pip
   - pip:
-      - git+https://github.com/ekidenfi/hummingbot.git@feat/ekiden_connector
+      - git+https://github.com/ekidenfi/hummingbot.git
       - msgpack>=1.0.5
       - flake8
       - isort
